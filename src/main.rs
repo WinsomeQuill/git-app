@@ -1,3 +1,7 @@
+struct User<'a> {
+    name: &'a str
+}
+
 fn main() {
-    println!("Hello, git!");
+    let user = User { name: "Artem" };
 }
