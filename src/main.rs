@@ -1,11 +1,11 @@
-struct User<'a> {
-    name: &'a str,
+struct User {
+    name: String,
     age: u16,
     course: u16,
 }
 
-impl <'a>User<'a> {
-    fn new(name: &str, age: u16, course: u16) -> Result<User, Box<dyn std::error::Error>> { // создаем структуру
+impl User {
+    fn new(name: String, age: u16, course: u16) -> Result<User, Box<dyn std::error::Error>> { // создаем структуру
         let user = User { name, age, course };
         Ok(user)
     }
@@ -18,6 +18,6 @@ impl <'a>User<'a> {
 }
 
 fn main() {
-    let user = User::new("Artem", 19, 4).unwrap();
+    let user = User::new(String::from("Artem"), 19, 4).unwrap();
     user.about();
 }
