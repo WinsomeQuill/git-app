@@ -1,66 +1,84 @@
-use rand::prelude::*;
+use gtk::gio::SimpleAction;
+use gtk::{prelude::*, Button, Align, Label, Orientation};
+use gtk::{Application, ApplicationWindow};
+
+const APP_ID: &str = "org.gtk_rs.git_app";
 
 fn main() {
-    let mut arr1: Vec<Vec<i32>> = vec![vec![0; 5]; 3];
-    let mut arr2: Vec<Vec<i32>> = vec![vec![0; 5]; 3];
+    let app = Application::builder().application_id(APP_ID).build();
 
-    let vecs = vec![&mut arr1, &mut arr2];
-
-    for vec in vecs {
-        random_push_to_vec(vec);
-        display_vec(vec);
-        println!("----------");
-        let index_columns = matching_vec(vec);
-
-        if index_columns.is_empty() {
-            println!("Positive columns not found! :(");
-            continue;
-        }
-
-        println!("Positive columns index: {}", index_columns.join(", "));
-    }
+    app.connect_activate(build_ui);
+    app.run();
 }
 
-fn random_push_to_vec(vec: &mut Vec<Vec<i32>>) {
-    let mut rng = rand::thread_rng();
+fn build_ui(app: &Application) {
+    let window = ApplicationWindow::builder()
+        .application(app)
+        .title("GIT APP")
+        .build();
 
-    for row in vec {
-        for column in row {
-            let num = rng.gen_range(-10..10);
-            *column = num;
-        }
-    }
-}
+    let button = Button::builder()
+        .margin_top(10)
+        .margin_bottom(10)
+        .margin_start(10)
+        .margin_end(10)
+        .halign(Align::Center)
+        .valign(Align::Center)
+        .name("count")
+        .label("Click me!")
+        .build();
 
-fn display_vec(vec: &Vec<Vec<i32>>) {
-    for row in vec {
-        for column in row {
-            if *column <= -1 {
-                print!("{}\t", column);
-                continue;
-            }
-            print!(" {}\t", column);
-        }
-        println!();
-    }
-}
+    let counter = 0;
+    let label = Label::builder()
+        .label(&format!("Count: {}", counter))
+        .name("ltext")
+        .build();
 
-fn matching_vec(vec: &Vec<Vec<i32>>) -> Vec<String> {
-    let mut count_positive_columns: Vec<String> = Vec::new();
+    let gtk_box = gtk::Box::builder()
+        .orientation(Orientation::Vertical)
+        .margin_top(10)
+        .margin_bottom(10)
+        .margin_start(10)
+        .margin_end(10)
+        .halign(Align::Center)
+        .build();
 
-    for column in 0..vec[0].len() {
-        let mut count_positive_numbers = 0;
-        for row in vec {
-            if row[column] >= 0 {
-                count_positive_numbers += 1;
-            }
-        }
-        
-        if count_positive_numbers == vec.len() {
-            let index = column as i32;
-            count_positive_columns.push(index.to_string());
-        }
-    }
-    
-   count_positive_columns
+    gtk_box.append(&label);
+    gtk_box.append(&button);
+
+    button.connect_clicked(move |button| {
+        let parameter = 1;
+        button
+            .activate_action("win.count", Some(&parameter.to_variant()))
+            .expect("The action does not exist.");
+    });
+
+    let action_count = SimpleAction::new_stateful(
+        "count",
+        Some(&i32::static_variant_type()),
+        &counter.to_variant(),
+    );
+
+    action_count.connect_activate(move |action, parameter| {
+        let mut state = action
+            .state()
+            .expect("Could not get state.")
+            .get::<i32>()
+            .expect("The variant needs to be of type `i32`.");
+
+        let parameter = parameter
+            .expect("Could not get parameter.")
+            .get::<i32>()
+            .expect("The variant needs to be of type `i32`.");
+
+        state += parameter;
+        action.set_state(&state.to_variant());
+
+        label.set_label(&format!("Counter: {state}"));
+    });
+
+    window.add_action(&action_count);
+    window.set_child(Some(&gtk_box));
+
+    window.present();
 }
