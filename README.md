@@ -4,7 +4,10 @@
 ### Описание
 Простой счётчик кликов на библиотеке GTK4.
 
-### Как запустить?
+### Запуск
+Скачать последнюю версию [тут](https://github.com/WinsomeQuill/git-app/releases/download/0.1.0/git-app.exe) и запустить.
+
+### Сборка проекта
 #### Windows
 - Ставим Visual Studio и в Visual Studio Installer устанавливаем C++
 - Скачать и установить [MSYS2](https://www.msys2.org/)
